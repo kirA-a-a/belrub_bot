@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-echo "boot: scanning env for TOKEN/BOT keys..."
-env | awk -F= 'toupper($1) ~ /(TOKEN|BOT)/ { print "  key=" $1 " len=" length($2) }' || true
+echo "boot: env key names:"
+env | awk -F= '/^[A-Za-z_][A-Za-z0-9_]*=/ { print "  " $1 }' | sort
 
 exec python -m bot
