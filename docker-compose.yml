@@ -1,0 +1,14 @@
+services:
+  bot:
+    build: .
+    container_name: belbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - bot-data:/app/data
+    environment:
+      SQLITE_PATH: /app/data/bot.db
+
+volumes:
+  bot-data:
