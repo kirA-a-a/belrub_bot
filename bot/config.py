@@ -21,14 +21,37 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", validation_alias="LOG_LEVEL")
 
 
+def _find_token() -> str:
+    # Exact and common aliases
+    for key in ("BOT_TOKEN", "TELEGRAM_BOT_TOKEN", "TOKEN"):
+        value = os.environ.get(key)
+        if value and value.strip():
+            return value.strip()
+
+    # Case-insensitive scan (Railway/UI quirks)
+    for key, value in os.environ.items():
+        if key.upper() == "BOT_TOKEN" and value and value.strip():
+            return value.strip()
+    return ""
+
+
 def load_settings() -> Settings:
-    token = os.environ.get("BOT_TOKEN", "").strip()
+    token = _find_token()
+    railway_env = os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_ENVIRONMENT_NAME")
+    print(
+        f"env_debug: count={len(os.environ)} "
+        f"has_BOT_TOKEN={'BOT_TOKEN' in os.environ} "
+        f"BOT_TOKEN_len={len(os.environ.get('BOT_TOKEN', ''))} "
+        f"railway_env={railway_env!r} "
+        f"token_found={bool(token)}",
+        flush=True,
+    )
     if not token:
         raise SystemExit(
-            "BOT_TOKEN missing. In Railway: belrub_bot → Variables → "
-            "add BOT_TOKEN → click Save (checkmark) → Redeploy."
+            "BOT_TOKEN empty/missing in container. "
+            "Open Variables → Raw Editor, ensure line is: BOT_TOKEN=123:ABC "
+            "(no quotes, no spaces). Then Deployments → Redeploy."
         )
-    # Ensure pydantic sees it even if alias quirks appear
     os.environ["BOT_TOKEN"] = token
     return Settings()
 
