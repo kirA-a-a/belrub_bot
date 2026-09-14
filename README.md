@@ -104,13 +104,15 @@ docker compose down
 
 1. Залей репозиторий на GitHub
 2. [Railway](https://railway.app) → New Project → Deploy from GitHub repo
-3. Variables:
-   - `BOT_TOKEN` = токен BotFather
-   - `SQLITE_PATH` = `/app/data/bot.db`
-   - `CACHE_TTL_SECONDS` = `3600`
-4. Railway подхватит `Dockerfile`
-5. Добавь Volume на путь `/app/data` (чтобы дефолты пользователей жили между редеплоями)
-6. Deploy → в логах должно быть `Bot starting (long polling)`
+3. Variables (имя **`TELEGRAM_TOKEN`** или `BOT_TOKEN`):
+   - значение = токен BotFather, **без кавычек**
+   - у переменной включи **Build** и **Deploy/Runtime**
+4. Volume: `/app/data`
+5. Deploy → в логах: `token_source=...` и `Bot starting (long polling)`
+
+Если runtime-переменные не доходят (в env только `RAILWAY_*`):
+- оставь `TELEGRAM_TOKEN` с флагом **Build** — Dockerfile запишет `/app/data/telegram_token` при сборке
+- или Render: см. `render.yaml`
 
 Альтернатива VPS:
 
