@@ -5,7 +5,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Railway may inject secrets at build but not runtime — bake token file at build.
+# Bake token outside /app/data — Railway Volume mounts hide image files there.
 ARG TELEGRAM_TOKEN=
 ARG BOT_TOKEN=
 ARG TELEGRAM_BOT_TOKEN=
@@ -18,8 +18,12 @@ COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x /app/entrypoint.sh \
     && mkdir -p /app/data \
     && TOKEN="${TELEGRAM_TOKEN:-${TELEGRAM_BOT_TOKEN:-${BOT_TOKEN:-}}}" \
-    && if [ -n "$TOKEN" ]; then printf '%s' "$TOKEN" > /app/data/telegram_token; fi \
-    && if [ -f /app/data/telegram_token ]; then echo "build: telegram_token file written"; else echo "build: telegram_token missing (set TELEGRAM_TOKEN for Build)"; fi
+    && if [ -n "$TOKEN" ]; then \
+         printf '%s' "$TOKEN" > /app/telegram_token; \
+         echo "build: wrote /app/telegram_token"; \
+       else \
+         echo "build: no TELEGRAM_TOKEN/BOT_TOKEN build arg"; \
+       fi
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD python -c "print('ok')"

@@ -12,6 +12,9 @@ TOKEN_ENV_CANDIDATES = (
 )
 
 TOKEN_FILE_CANDIDATES = (
+    # Outside /app/data — Railway Volume would hide files baked into the image.
+    Path("/app/telegram_token"),
+    Path("telegram_token"),
     Path("/app/data/telegram_token"),
     Path("data/telegram_token"),
 )
