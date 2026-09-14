@@ -5,3 +5,5 @@ dockerfilePath = "Dockerfile"
 [deploy]
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
+# Prefer classic runtime — Runtime V2 often drops custom service variables.
+runtime = "V1"
